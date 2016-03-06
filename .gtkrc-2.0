@@ -1,0 +1,6 @@
+style "vimfix" {
+	bg[NORMAL] = "#2B2B2B"
+	GtkWindow::resize-grip-height = 0
+	GtkWindow::resize-grip-width = 0
+}
+widget "vim-main-window.*GtkForm" style "vimfix"

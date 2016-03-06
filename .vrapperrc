@@ -1,0 +1,49 @@
+set clipboard=unnamed,unnamedplus
+set contentassistmode
+set incsearch
+set noexpandtab
+set scrolloff=0
+
+" Disable case changing.
+vnoremap u <Nul>
+vnoremap <S-u> <Nul>
+nnoremap guu <Nul>
+nnoremap gUU <Nul>
+vnoremap gu <Nul>
+vnoremap gU <Nul>
+
+" Disable recording.
+nnoremap q <Nul>
+
+" Disable Ex mode.
+nnoremap Q <Nul>
+
+" Disable Fast Exit
+nnoremap ZZ <Nul>
+
+" Surround line in single quotes, terminated by plus-sign.
+noremap ,+ :s/^\(\s*\)\(.*\)$/\1'\2 ' \+/<CR>
+
+" Surround Word
+nnoremap ,` ciW``<Esc>P
+nnoremap ," ciW""<Esc>P
+nnoremap ,' ciW''<Esc>P
+nnoremap ,{ ciW{}<Esc>P
+nnoremap ,( ciW()<Esc>P
+nnoremap ,< ciW<><Esc>P
+nnoremap ,[ ciW[]<Esc>P
+vnoremap ,` c``<Esc>P
+vnoremap ," c""<Esc>P
+vnoremap ,' c''<Esc>P
+vnoremap ,{ c{}<Esc>P
+vnoremap ,( c()<Esc>P
+vnoremap ,< c<><Esc>P
+vnoremap ,[ c[]<Esc>P
+
+" Toggle Commands
+nnoremap ,t1 :set number!<CR>
+nnoremap ,th :set hlsearch!<CR>
+nnoremap ,tl :set list!<CR>
+
+inoremap <C-Space> <Tab>
+nnoremap <Space> za
