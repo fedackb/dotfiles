@@ -11,12 +11,12 @@ set nocompatible
 filetype off
 call vundle#begin($VIMHOME . '/plugins/')
 Plugin 'VundleVim/Vundle.vim'
-Plugin 'Raimondi/delimitMate'
 Plugin 'Shougo/neocomplete.vim'
 Plugin 'SirVer/ultisnips'
 Plugin 'dansomething/vim-eclim'
 Plugin 'davidhalter/jedi-vim'
 Plugin 'dhruvasagar/vim-table-mode'
+Plugin 'jiangmiao/auto-pairs'
 Plugin 'junegunn/vim-easy-align'
 Plugin 'kien/ctrlp.vim'
 Plugin 'majutsushi/tagbar'
@@ -69,7 +69,7 @@ set t_RV=
 set t_ut=
 set tabstop=4
 set viminfo=
-set wildchar=<Tab>
+set wildchar=<Nul>
 set wildmode=longest,list
 syn on
 
@@ -147,7 +147,7 @@ augroup END
 " HTML
 augroup HTML
 	autocmd!
-	autocmd FileType html setlocal noexpandtab shiftwidth=4 softtabstop=4 tabstop=4
+	autocmd FileType html setlocal noexpandtab shiftwidth=2 softtabstop=2 tabstop=2
 augroup END
 vnoremap <Leader>he :s/\%V[<>]/\={'<':'&lt;','>':'&gt;'}[submatch(0)]/g<CR>
 
@@ -162,12 +162,12 @@ function! MarkdownToHTML()
 	let l:path = expand('%:p:h')
 	let l:infile = expand('%:p')
 	let l:outfile = substitute(l:infile, '\.md$', '\.html', '')
-	let l:args = '--mathjax -c ' . l:path . '/*.css -o ' . l:outfile . ' ' .  l:infile
+	let l:args = '--mathjax --css=' . l:path . '/style.css -o ' . l:outfile . ' ' .  l:infile
 	silent execute '!pandoc' l:args
 endfunction
 augroup Markdown
 	autocmd!
-	autocmd FileType markdown setlocal noexpandtab shiftwidth=4 softtabstop=4 tabstop=4 wrap linebreak
+	autocmd FileType markdown syn off | setlocal noexpandtab shiftwidth=4 softtabstop=4 tabstop=4 wrap linebreak
 	autocmd BufWritePost *.md call MarkdownToHTML()
 augroup END
 
@@ -218,7 +218,7 @@ nnoremap <Leader>tl :set list!<CR>
 nnoremap <Leader>tm :call ToggleMargin()<CR>
 nnoremap <Leader>ts :set spell!<CR>:set spell?<CR>
 nnoremap <Leader>tt :TagbarToggle<CR>
-nnoremap <expr> <Leader>tw ToggleWinMinMax()
+nnoremap <expr> <C-m> ToggleWinMinMax()
 
 " Omnicomplete
 augroup omnicomplete
@@ -234,9 +234,8 @@ augroup omnicomplete
 	autocmd FileType sql           setlocal omnifunc=sqlcomplete#Complete
 	autocmd FileType *             if &l:omnifunc == '' | setlocal omnifunc=syntaxcomplete#Complete | endif
 augroup END
-inoremap <Tab> <C-x><C-o><C-n>
-inoremap <C-space> <Tab>
-inoremap <Nul> <Tab>
+inoremap <Nul> <C-x><C-o><C-n>
+inoremap <C-space> <C-x><C-o><C-n>
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 inoremap <expr> <BS>  pumvisible() ? "\<C-e>\<C-h>" : "\<C-h>"
 inoremap <expr> <C-h> pumvisible() ? "\<C-e>\<C-h>" : "\<C-h>"
@@ -251,9 +250,6 @@ let g:ctrlp_custom_ignore = {
 	\ 'dir':  '\v[\/]\.(git|cache|tmp|__init__)$',
 	\ 'file': '\v\.(o|pyc|swp|zip|exe|so|dll|dat|DS_Store|NTUSER|ntuser|LOG1|LOG2|png|bmp|jpg)$'
 	\ }
-
-" DelimitMate
-let g:delimitMate_expand_cr = 1
 
 " Easy Align
 vmap <Enter> <Plug>(EasyAlign)

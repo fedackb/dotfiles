@@ -45,5 +45,6 @@ nnoremap ,t1 :set number!<CR>
 nnoremap ,th :set hlsearch!<CR>
 nnoremap ,tl :set list!<CR>
 
-inoremap <C-Space> <Tab>
+" Convenience Mappings
+vnoremap <C-c> <Esc>
 nnoremap <Space> za

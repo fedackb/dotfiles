@@ -34,5 +34,4 @@ function! CommandLineCompletion()
 	call feedkeys("\<Nul>", "t")
 	return ""
 endfunction
-" set wildchar=<Nul>
-" cmap <expr> <C-space> CommandLineCompletion()
+cmap <expr> <C-space> CommandLineCompletion()

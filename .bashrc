@@ -133,3 +133,6 @@ pdfmerge() { gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -
 
 # http://stackoverflow.com/a/22916141
 pyclean() { find . -type f -name "*.py[co]" -delete 2>/dev/null; find . -type d -name "__pycache__" -delete 2>/dev/null; }
+
+# md to html converter
+md2html() { pandoc --mathjax -c *.css -o ${1%.*}.html $1; }
