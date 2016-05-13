@@ -14,7 +14,6 @@ Plugin 'VundleVim/Vundle.vim'
 Plugin 'Shougo/neocomplete.vim'
 Plugin 'SirVer/ultisnips'
 Plugin 'dansomething/vim-eclim'
-Plugin 'davidhalter/jedi-vim'
 Plugin 'dhruvasagar/vim-table-mode'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'junegunn/vim-easy-align'
@@ -119,6 +118,22 @@ vnoremap <Leader>( c()<Esc>P
 vnoremap <Leader>< c<><Esc>P
 vnoremap <Leader>[ c[]<Esc>P
 
+" Current Working Directory
+nnoremap <Leader>cd :lcd %:p:h<CR>:pwd<CR>
+
+" Cycle through Line Number Display Modes
+function! CycleNumberDisplay()
+	if !&number              " Display absolute line numbers.
+		set number
+	elseif !&relativenumber  " Display relative line numbers.
+		set relativenumber
+	else                     " Hide line numbers.
+		set number!
+		set relativenumber!
+	endif
+endfunction
+nnoremap <Leader>t1 :call CycleNumberDisplay()<CR>
+
 " Yanks
 noremap <S-y> y$
 nnoremap <Leader>ye ^yg_:<C-r>"<CR>
@@ -155,20 +170,6 @@ vnoremap <Leader>he :s/\%V[<>]/\={'<':'&lt;','>':'&gt;'}[submatch(0)]/g<CR>
 augroup Java
 	autocmd!
 	autocmd FileType java setlocal tags+=$VIMHOME/tags/java.tags
-augroup END
-
-" Markdown
-function! MarkdownToHTML()
-	let l:path = expand('%:p:h')
-	let l:infile = expand('%:p')
-	let l:outfile = substitute(l:infile, '\.md$', '\.html', '')
-	let l:args = '--mathjax --css=' . l:path . '/style.css -o ' . l:outfile . ' ' .  l:infile
-	silent execute '!pandoc' l:args
-endfunction
-augroup Markdown
-	autocmd!
-	autocmd FileType markdown syn off | setlocal noexpandtab shiftwidth=4 softtabstop=4 tabstop=4 wrap linebreak
-	autocmd BufWritePost *.md call MarkdownToHTML()
 augroup END
 
 " PHP
@@ -240,6 +241,18 @@ inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 inoremap <expr> <BS>  pumvisible() ? "\<C-e>\<C-h>" : "\<C-h>"
 inoremap <expr> <C-h> pumvisible() ? "\<C-e>\<C-h>" : "\<C-h>"
 
+" Miscellaneous
+augroup Misc
+	autocmd!
+	autocmd VimEnter * set vb t_vb= " Removes bells
+	autocmd VimEnter * hi SpellBad cterm = underline
+
+	" Remove trailing whitespaces.
+	function! Strip()
+		:%s/\s\+$//e
+	endfunction
+augroup END
+
 " Ctrl-p
 let g:ctrlp_map = '<C-p>'
 let g:ctrlp_cache_dir = $VIMHOME . '/cache/ctrlp'
@@ -257,20 +270,6 @@ vmap <Enter> <Plug>(EasyAlign)
 " Eclim
 let g:EclimCompletionMethod = 'omnifunc'
 
-" Jedi
-let g:jedi#auto_initialization = 1
-let g:jedi#auto_vim_configuration = 0
-let g:jedi#popup_select_first = 1
-let g:jedi#popup_on_dot = 1
-let g:jedi#show_call_signatures = '0'
-let g:jedi#goto_command = "<Leader>c"
-let g:jedi#goto_assignments_command = "<Leader>a"
-let g:jedi#goto_definitions_command = "<Leader>d"
-let g:jedi#usages_command = "<Leader>n"
-let g:jedi#rename_command = "<Leader>r"
-let g:jedi#documentation_command = 'K'
-let g:jedi#completions_command = ''
-
 " Multiple Cursors
 let g:multi_cursor_use_default_mapping = 0
 let g:multi_cursor_next_key = "<C-n>"
@@ -287,34 +286,6 @@ function! Multiple_cursors_after()
 		exe 'NeoCompleteUnlock'
 	endif
 endfunction
-
-" Neocomplete
-" let g:neocomplete#enable_at_startup = 1
-" let g:neocomplete#enable_auto_select = 1
-" let g:neocomplete#sources#buffer#cache_limit_size = 500000
-" let g:neocomplete#data_directory = $VIMHOME . '/cache/neocomplete/'
-" let g:neocomplete#enable_fuzzy_completion = 0
-" let g:neocomplete#enable_ignore_case = 0
-" let g:neocomplete#enable_smart_case = 0
-" let g:neocomplete#auto_completion_start_length = 3
-" let g:neocomplete#max_list = 5
-" let g:neocomplete#sources#syntax#min_keyword_length = 3
-" let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
-" let g:neocomplete#sources#dictionary#dictionaries = {
-" 	\ 'default' : '',
-" 	\ }
-" if !exists('g:neocomplete#keyword_patterns')
-" 	let g:neocomplete#keyword_patterns = {}
-" endif
-" let g:neocomplete#keyword_patterns['default'] = '\h\w*'
-" if !exists('g:neocomplete#force_omni_input_patterns')
-" 	let g:neocomplete#force_omni_input_patterns = {}
-" endif
-" let g:neocomplete#force_omni_input_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
-" let g:neocomplete#force_omni_input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
-" let g:neocomplete#force_omni_input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-" let g:neocomplete#force_omni_input_patterns.javascript = '\h\w*\|[^. \t]\.\w*'
-" let g:neocomplete#force_omni_input_patterns.python = '[^. \t]\.\w*'
 
 " NERDCommenter
 let g:NERDSpaceDelims = 1
@@ -361,69 +332,3 @@ let g:UltiSnipsExpandTrigger = "<C-a>"
 let g:UltiSnipsJumpForwardTrigger = "<C-f>"
 let g:UltiSnipsJumpBackwardTrigger = "<C-b>"
 let g:UltiSnipsListSnippets = "<C-l>"
-
-" Current Working Directory
-nnoremap <Leader>cd :lcd %:p:h<CR>:pwd<CR>
-
-" Cycle through Line Number Display Modes
-function! CycleNumberDisplay()
-	if !&number             " Display absolute line numbers.
-		set number
-	elseif !&relativenumber " Display relative line numbers.
-		set relativenumber
-	else                    " Hide line numbers.
-		set number!
-		set relativenumber!
-	endif
-endfunction
-nnoremap <Leader>t1 :call CycleNumberDisplay()<CR>
-
-" Miscellaneous
-augroup Misc
-	autocmd!
-	autocmd VimEnter * set vb t_vb= " Removes bells
-	autocmd VimEnter * hi SpellBad cterm = underline
-
-	" Remove trailing whitespaces.
-	function! Strip()
-		:%s/\s\+$//e
-	endfunction
-
-    " Update header information on save.
-	function! UpdateHeader()
-		let header_size = min([line('$'), 10])
-		let search_range = '\%>0l\%<' . header_size . 'l'
-		let pattern_filename = 'Filename:.*'
-		let pattern_last_modified = 'Last Modified:.*'
-		let cursor_pos = getpos('.')
-		let undo_level = &ul
-
-		" Search for a line containing the 'Filename:' header.
-		let lineNum = search(search_range . pattern_filename, 'n')
-		if lineNum > 0
-
-			" Compare actual 'Filename:' header against expectations.
-			let actual = matchstr(getline(lineNum), pattern_filename)
-			let expected = 'Filename: ' . expand('%:t')
-			if !(actual == expected)
-
-				" Update 'Filename:' header.
-				exe lineNum . 's/Filename:.*/Filename: ' . expand('%:t') . '/'
-			endif
-		endif
-
-		" Determine if the current buffer has been modified.
-		if &mod
-
-			" Update 'Last Modified:' header.
-			let lineNum = search(search_range . pattern_last_modified, 'n')
-			if lineNum > 0
-				exe lineNum . 's/Last Modified:.*/Last Modified: ' . strftime('%a %d %b %Y %I:%M:%S %p %Z') . '/'
-			endif
-		endif
-
-		" Restore cursor position.
-		call setpos('.', cursor_pos)
-	endfunction
-	autocmd BufWritePre,FileWritePre *.py call UpdateHeader()
-augroup END
