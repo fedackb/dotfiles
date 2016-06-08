@@ -1,6 +1,5 @@
 " Platform-Dependent Settings
 let $VIMHOME = has('win32') ? $HOME . '\\vimfiles' : $HOME . '/.vim'
-let &term = has('win32') ? 'win32' : 'xterm-256color'
 
 " Paths
 set runtimepath+=$VIMHOME
@@ -11,23 +10,23 @@ set nocompatible
 filetype off
 call vundle#begin($VIMHOME . '/plugins/')
 Plugin 'VundleVim/Vundle.vim'
-Plugin 'Shougo/neocomplete.vim'
 Plugin 'SirVer/ultisnips'
 Plugin 'dansomething/vim-eclim'
 Plugin 'dhruvasagar/vim-table-mode'
-Plugin 'jiangmiao/auto-pairs'
+Plugin 'Raimondi/delimitMate'
 Plugin 'junegunn/vim-easy-align'
 Plugin 'kien/ctrlp.vim'
 Plugin 'majutsushi/tagbar'
+Plugin 'pangloss/vim-javascript'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'scrooloose/nerdtree'
 Plugin 'terryma/vim-multiple-cursors'
 Plugin 'vim-scripts/OmniCppComplete'
 call vundle#end()
-filetype plugin indent on
+filetype plugin on
 
 " Color Scheme
-colorscheme molokai
+colorscheme onedark
 
 " General Options
 let g:mapleader = ','
@@ -35,7 +34,7 @@ set autoindent
 set autoread
 set backspace=2
 set clipboard=unnamed,unnamedplus
-set complete-=i
+set complete=.
 set completeopt=menu,menuone,longest
 set cursorcolumn
 set cursorline
@@ -68,26 +67,26 @@ set t_RV=
 set t_ut=
 set tabstop=4
 set viminfo=
-set wildchar=<Nul>
+set wildchar=<Tab>
 set wildmode=longest,list
 syn on
 
 " Disable case changing.
-vnoremap u <Nul>
-vnoremap <S-u> <Nul>
-nnoremap guu <Nul>
-nnoremap gUU <Nul>
-vnoremap gu <Nul>
-vnoremap gU <Nul>
+vnoremap u <Nop>
+vnoremap <S-u> <Nop>
+nnoremap guu <Nop>
+nnoremap gUU <Nop>
+vnoremap gu <Nop>
+vnoremap gU <Nop>
 
 " Disable recording.
-nnoremap q <Nul>
+nnoremap q <Nop>
 
 " Disable Ex mode.
-nnoremap Q <Nul>
+nnoremap Q <Nop>
 
 " Disable fast exit.
-nnoremap ZZ <Nul>
+nnoremap ZZ <Nop>
 
 " Convenience Mappings
 nnoremap <C-c> <Esc>
@@ -159,10 +158,10 @@ augroup C/C++
 	autocmd FileType cpp setlocal tags+=$VIMHOME/tags/cpp.tags
 augroup END
 
-" HTML
-augroup HTML
+" HTML/XML
+augroup HTML/XML
 	autocmd!
-	autocmd FileType html setlocal noexpandtab shiftwidth=2 softtabstop=2 tabstop=2
+	autocmd FileType html,xml,xsd setlocal noexpandtab shiftwidth=2 softtabstop=2 tabstop=2
 augroup END
 vnoremap <Leader>he :s/\%V[<>]/\={'<':'&lt;','>':'&gt;'}[submatch(0)]/g<CR>
 
@@ -196,6 +195,41 @@ augroup vimrc
 	autocmd BufWritePost .vimrc,_vimrc,vimrc,.gvimrc,_gvimrc,gvimrc so $MYVIMRC | if has('gui_running') | so $MYGVIMRC | endif
 augroup END
 
+" Omnicomplete
+augroup omnicomplete
+	autocmd!
+	autocmd FileType c,cpp         let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#c#complete#CodeComplete' : 'omni#cpp#complete#Main'
+	autocmd FileType css           let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#css#complete#CodeComplete' : 'csscomplete#CompleteCSS'
+	autocmd FileType html,markdown let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#html#complete#CodeComplete' : 'htmlcomplete#CompleteTags'
+	autocmd FileType java          let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#java#complete#CodeComplete' : 'syntaxcomplete#Complete'
+	autocmd FileType javascript    let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#javascript#complete#CodeComplete' : 'javascriptcomplete#CompleteJS'
+	autocmd FileType php           let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#php#complete#CodeComplete' : 'phpcomplete#CompletePHP'
+	autocmd FileType python        let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#python#complete#CodeComplete' : 'jedi#completions'
+	autocmd FileType xml,xsd       let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#xml#complete#CodeComplete' : 'xmlcomplete#CompleteTags'
+	autocmd FileType sql           setlocal omnifunc=sqlcomplete#Complete
+augroup END
+function! Autocomplete()
+	let prefix = pumvisible() ? "\<C-e>" : ""
+
+	" Insert tab if at the front of the line.
+	if strpart(getline('.'), 0, col('.')-1) =~ '^\s*$'
+		return  prefix . "\<Tab>"
+
+	" If omni matches exist, select first match; else try keyword completion.
+	elseif &omnifunc != ''
+		return "\<C-x>\<C-o>\<C-r>=pumvisible() ?" .
+		\      "\"\\<Down>\" :" .
+		\      "\"\\<C-e>\\<C-n>\"" .
+		\      "\<CR>"
+
+	" Try keyword completion.
+	else
+		return prefix . "\<C-n>"
+	endif
+endfunction
+inoremap <expr> <silent> <Tab> Autocomplete()
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+
 " Toggle Commands
 function! ToggleMargin()
 	if !&colorcolumn
@@ -221,37 +255,15 @@ nnoremap <Leader>ts :set spell!<CR>:set spell?<CR>
 nnoremap <Leader>tt :TagbarToggle<CR>
 nnoremap <expr> <C-m> ToggleWinMinMax()
 
-" Omnicomplete
-augroup omnicomplete
-	autocmd!
-	autocmd FileType c,cpp         let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#c#complete#CodeComplete' : 'omni#cpp#complete#Main'
-	autocmd FileType css           let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#css#complete#CodeComplete' : 'csscomplete#CompleteCSS'
-	autocmd FileType html,markdown let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#html#complete#CodeComplete' : 'htmlcomplete#CompleteTags'
-	autocmd FileType java          let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#java#complete#CodeComplete' : 'syntaxcomplete#Complete'
-	autocmd FileType javascript    let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#javascript#complete#CodeComplete' : 'javascriptcomplete#CompleteJS'
-	autocmd FileType php           let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#php#complete#CodeComplete' : 'phpcomplete#CompletePHP'
-	autocmd FileType python        let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#python#complete#CodeComplete' : 'jedi#completions'
-	autocmd FileType xml           let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#xml#complete#CodeComplete' : 'xmlcomplete#CompleteTags'
-	autocmd FileType sql           setlocal omnifunc=sqlcomplete#Complete
-	autocmd FileType *             if &l:omnifunc == '' | setlocal omnifunc=syntaxcomplete#Complete | endif
-augroup END
-inoremap <Nul> <C-x><C-o><C-n>
-inoremap <C-space> <C-x><C-o><C-n>
-inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-inoremap <expr> <BS>  pumvisible() ? "\<C-e>\<C-h>" : "\<C-h>"
-inoremap <expr> <C-h> pumvisible() ? "\<C-e>\<C-h>" : "\<C-h>"
-
 " Miscellaneous
 augroup Misc
 	autocmd!
 	autocmd VimEnter * set vb t_vb= " Removes bells
 	autocmd VimEnter * hi SpellBad cterm = underline
-
-	" Remove trailing whitespaces.
-	function! Strip()
-		:%s/\s\+$//e
-	endfunction
 augroup END
+function! Strip() " Removes trailing whitespaces
+	:%s/\s\+$//e
+endfunction
 
 " Ctrl-p
 let g:ctrlp_map = '<C-p>'
@@ -259,10 +271,7 @@ let g:ctrlp_cache_dir = $VIMHOME . '/cache/ctrlp'
 let g:ctrlp_show_hidden = 0
 let g:ctrlp_use_caching = 1
 let g:ctrlp_clear_cache_on_exit = 0
-let g:ctrlp_custom_ignore = {
-	\ 'dir':  '\v[\/]\.(git|cache|tmp|__init__)$',
-	\ 'file': '\v\.(o|pyc|swp|zip|exe|so|dll|dat|DS_Store|NTUSER|ntuser|LOG1|LOG2|png|bmp|jpg)$'
-	\ }
+let g:ctrlp_custom_ignore = { 'dir':  '\v[\/]\.(git|cache|tmp|__init__)$', 'file': '\v\.(o|pyc|swp|zip|exe|so|dll|dat|DS_Store|NTUSER|ntuser|LOG1|LOG2|png|bmp|jpg)$' }
 
 " Easy Align
 vmap <Enter> <Plug>(EasyAlign)
@@ -272,10 +281,10 @@ let g:EclimCompletionMethod = 'omnifunc'
 
 " Multiple Cursors
 let g:multi_cursor_use_default_mapping = 0
-let g:multi_cursor_next_key = "<C-n>"
-let g:multi_cursor_prev_key = "<C-p>"
-let g:multi_cursor_skip_key = "<C-x>"
-let g:multi_cursor_quit_key = "<C-c>"
+let g:multi_cursor_next_key = '<C-n>'
+let g:multi_cursor_prev_key = '<C-p>'
+let g:multi_cursor_skip_key = '<C-x>'
+let g:multi_cursor_quit_key = '<C-c>'
 function! Multiple_cursors_before()
 	if exists(':NeoCompleteLock') == 2
 		exe 'NeoCompleteLock'
@@ -301,7 +310,7 @@ augroup NERDTree
 	autocmd!
 	autocmd FileType nerdtree setlocal relativenumber
 augroup END
-nnoremap <Leader>e :execute "e %:p:h"<CR>
+nnoremap <Leader>e :execute 'e %:p:h'<CR>
 
 " OmniCppComplete
 let OmniCpp_SelectFirstItem = 2
@@ -328,7 +337,7 @@ let g:tagbar_show_linenumbers = 2
 " UltiSnips
 let g:UltiSnipsNoPythonWarning = 1
 let g:UltiSnipsEditSplit = 'horizontal'
-let g:UltiSnipsExpandTrigger = "<C-a>"
-let g:UltiSnipsJumpForwardTrigger = "<C-f>"
-let g:UltiSnipsJumpBackwardTrigger = "<C-b>"
-let g:UltiSnipsListSnippets = "<C-l>"
+let g:UltiSnipsExpandTrigger = '<C-a>'
+let g:UltiSnipsJumpForwardTrigger = '<C-f>'
+let g:UltiSnipsJumpBackwardTrigger = '<C-b>'
+let g:UltiSnipsListSnippets = '<C-l>'
