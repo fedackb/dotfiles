@@ -13,6 +13,7 @@ set guioptions-=L " Remove left scroll bar for vertically split windoww
 set guioptions-=r " Remove right scrollbar
 set guioptions-=R " Remove right scrollbar for vertically split windows
 set guioptions-=b " Remove bottom scrollbar
+set guioptions-=e " Remove GUI tabs
 
 " Toggle GUI Display
 function! ToggleGUI()
@@ -34,4 +35,4 @@ function! CommandLineCompletion()
 	call feedkeys("\<Nul>", "t")
 	return ""
 endfunction
-cmap <expr> <C-space> CommandLineCompletion()
+"cmap <expr> <C-space> CommandLineCompletion()

@@ -3,81 +3,75 @@ let $VIMHOME = has('win32') ? $HOME . '\\vimfiles' : $HOME . '/.vim'
 
 " Paths
 set runtimepath+=$VIMHOME
-set runtimepath+=$VIMHOME/plugins/Vundle.vim
+set runtimepath+=$VIMHOME/plugins/vim-plug
 
 " Plugins
-set nocompatible
-filetype off
-call vundle#begin($VIMHOME . '/plugins/')
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'SirVer/ultisnips'
-Plugin 'dansomething/vim-eclim'
-Plugin 'dhruvasagar/vim-table-mode'
-Plugin 'Raimondi/delimitMate'
-Plugin 'junegunn/vim-easy-align'
-Plugin 'kien/ctrlp.vim'
-Plugin 'majutsushi/tagbar'
-Plugin 'pangloss/vim-javascript'
-Plugin 'scrooloose/nerdcommenter'
-Plugin 'scrooloose/nerdtree'
-Plugin 'terryma/vim-multiple-cursors'
-Plugin 'vim-scripts/OmniCppComplete'
-call vundle#end()
-filetype plugin on
+call plug#begin('~/.vim/plugins/')
+Plug 'Quramy/tsuquyomi'
+Plug 'Shougo/vimproc.vim', {'do' : 'make'}
+Plug 'davidhalter/jedi-vim'
+Plug 'dhruvasagar/vim-table-mode'
+Plug 'jnurmine/Zenburn'
+Plug 'joshdick/onedark.vim'
+Plug 'junegunn/vim-easy-align'
+Plug 'kien/ctrlp.vim'
+Plug 'leafgarland/typescript-vim'
+Plug 'majutsushi/tagbar'
+Plug 'pangloss/vim-javascript'
+Plug 'scrooloose/nerdcommenter'
+Plug 'scrooloose/nerdtree'
+Plug 'terryma/vim-multiple-cursors'
+call plug#end()
 
 " Color Scheme
 colorscheme onedark
 
 " General Options
+filetype indent on
 let g:mapleader = ','
 set autoindent
-set autoread
+set smartindent
+set ignorecase
+set smartcase
 set backspace=2
-set clipboard=unnamed,unnamedplus
-set complete=.
-set completeopt=menu,menuone,longest
+set noexpandtab
+set shiftwidth=2
+set softtabstop=2
+set tabstop=2
 set cursorcolumn
 set cursorline
-set encoding=utf-8
 set foldlevelstart=99
 set foldmethod=syntax
+set number
+set relativenumber
+set autoread
+set clipboard=unnamed,unnamedplus
+set complete=.
+set completeopt=menu,menuone,longest,preview
+set encoding=utf-8
 set incsearch
 set listchars=trail:·,precedes:«,extends:»,eol:↲,tab:▸\ "
 set mouse=
-set nobackup
-set nocompatible
-set noexpandtab
 set nolist
-set noswapfile
 set nowrap
-set number
 set pumheight=10
-set relativenumber
 set ruler
 set scrolloff=0
 set selection=inclusive
-set shiftwidth=4
 set showcmd
-set softtabstop=4
 set spell
 set splitbelow
 set splitright
+set wildchar=<Tab>
+set wildmode=longest,list
 set t_Co=256
 set t_RV=
 set t_ut=
-set tabstop=4
+set nobackup
+set nocompatible
+set noswapfile
 set viminfo=
-set wildchar=<Tab>
-set wildmode=longest,list
 syn on
-
-" Disable case changing.
-vnoremap u <Nop>
-vnoremap <S-u> <Nop>
-nnoremap guu <Nop>
-nnoremap gUU <Nop>
-vnoremap gu <Nop>
-vnoremap gU <Nop>
 
 " Disable recording.
 nnoremap q <Nop>
@@ -85,10 +79,8 @@ nnoremap q <Nop>
 " Disable Ex mode.
 nnoremap Q <Nop>
 
-" Disable fast exit.
-nnoremap ZZ <Nop>
-
 " Convenience Mappings
+inoremap jj <Esc>
 nnoremap <C-c> <Esc>
 inoremap <C-c> <Esc>
 vnoremap <C-c> <Esc>
@@ -97,11 +89,19 @@ vnoremap <C-c> <Esc>
 nnoremap j gj
 nnoremap k gk
 
+" File Browser
+nnoremap <Leader>e :e %:p:h<CR>
+
+" Search
+nnoremap / /\v
+
 " Search & Replace
-nnoremap <Leader>s :%s/\<C-r><C-w>/
+nnoremap <Leader>s :.,$s/\V\<<C-r><C-w>\>//gc<Left><Left><Left>
+nnoremap <Leader>S :.,$s/\V<C-r><C-a>//gc<Left><Left><Left>
+vnoremap <Leader>s y:.,$s/\V<C-r>0//gc<Left><Left><Left>
 
 " Surrounds
-noremap <Leader>+ :s/^\(\s*\)\(.*\)$/\1'\2 ' \+/<CR>
+noremap  <Leader>+ :s/\v^(\s*)(.*)$/\1'\2' \+/<CR>
 nnoremap <Leader>` ciW``<Esc>P
 nnoremap <Leader>" ciW""<Esc>P
 nnoremap <Leader>' ciW''<Esc>P
@@ -135,11 +135,11 @@ nnoremap <Leader>t1 :call CycleNumberDisplay()<CR>
 
 " Yanks
 noremap <S-y> y$
-nnoremap <Leader>ye ^yg_:<C-r>"<CR>
+nnoremap <Leader>y ^yg_:<C-r>"<CR>
 
 " Folding
 function! FoldText()
-	let text =  getline(v:foldstart)
+	let text = getline(v:foldstart)
 	let text = substitute(text, '\t', repeat(' ', &tabstop), 'g')
 	let text = text . repeat(' ', 350)
 	return text
@@ -163,7 +163,7 @@ augroup HTML/XML
 	autocmd!
 	autocmd FileType html,xml,xsd setlocal noexpandtab shiftwidth=2 softtabstop=2 tabstop=2
 augroup END
-vnoremap <Leader>he :s/\%V[<>]/\={'<':'&lt;','>':'&gt;'}[submatch(0)]/g<CR>
+vnoremap <Leader>he :s/\m\%V[<>]/\={'<':'&lt;','>':'&gt;'}[submatch(0)]/g<CR>
 
 " Java
 augroup Java
@@ -189,46 +189,70 @@ augroup text
 	autocmd FileType text setlocal wrap linebreak expandtab shiftwidth=2 softtabstop=2 tabstop=2
 augroup END
 
+" Typescript
+augroup typescript
+	autocmd!
+	autocmd FileType typescript nnoremap <buffer> <Leader>tt :<C-u>echo tsuquyomi#hint()<CR>
+augroup END
+
 " Vim Config
 augroup vimrc
 	autocmd!
+	autocmd FileType vim setlocal shiftwidth=2 softtabstop=2 tabstop=2
 	autocmd BufWritePost .vimrc,_vimrc,vimrc,.gvimrc,_gvimrc,gvimrc so $MYVIMRC | if has('gui_running') | so $MYGVIMRC | endif
 augroup END
+
+function! Autocomplete()
+	" Insert a tab if at the front of the current line.
+	if strpart(getline("."), 0, col(".") - 1) =~ "^\s*$"
+		let expr .= "\<Tab>"
+
+	" Otherwise, invoke a completion method.
+	else
+		" Ensure that the popup menu is closed.
+		let expr = pumvisible() ? "\<C-e>" : ""
+
+		" Determine if omni completion matches exist.
+		let omniMatchesExist = 0
+		if exists("&omnifunc") && &omnifunc != ""
+			let F = function(&omnifunc)
+			let start = F(1, "")
+			let base = strpart(getline("."), start, col(".") - start - 1)
+			let omniMatchesExist = !empty(F(0, base))
+		endif
+
+		" Invoke omni completion if at least one match exists.
+		if omniMatchesExist
+			let expr .= "\<C-x>\<C-o>\<C-r>=pumvisible() ? " .
+			\           "\"\\<Down>\" : \"\"" .
+			\           "\<CR>"
+
+		" Otherwise, invoke keyword completion.
+		else
+			let expr .= "\<C-n>\<C-r>=pumvisible() ? " .
+			\           "\"\\<Down>\" : \"\"" .
+			\           "\<CR>"
+		endif
+	endif
+	return expr
+endfunction
+inoremap <expr> <silent> <Tab> Autocomplete()
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+inoremap <C-Space> <Tab>
+inoremap <Nul> <Tab>
 
 " Omnicomplete
 augroup omnicomplete
 	autocmd!
-	autocmd FileType c,cpp         let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#c#complete#CodeComplete' : 'omni#cpp#complete#Main'
-	autocmd FileType css           let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#css#complete#CodeComplete' : 'csscomplete#CompleteCSS'
-	autocmd FileType html,markdown let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#html#complete#CodeComplete' : 'htmlcomplete#CompleteTags'
-	autocmd FileType java          let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#java#complete#CodeComplete' : 'syntaxcomplete#Complete'
-	autocmd FileType javascript    let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#javascript#complete#CodeComplete' : 'javascriptcomplete#CompleteJS'
-	autocmd FileType php           let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#php#complete#CodeComplete' : 'phpcomplete#CompletePHP'
-	autocmd FileType python        let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#python#complete#CodeComplete' : 'jedi#completions'
-	autocmd FileType xml,xsd       let &l:omnifunc = exists(':Eclim') && eclim#EclimAvailable() ? 'eclim#xml#complete#CodeComplete' : 'xmlcomplete#CompleteTags'
+	autocmd FileType c,cpp         setlocal omnifunc=omni#cpp#complete#Main
+	autocmd FileType css           setlocal omnifunc=csscomplete#CompleteCSS
+	autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+	autocmd FileType java          setlocal omnifunc=syntaxcomplete#Complete
+	autocmd FileType javascript    setlocal omnifunc=javascriptcomplete#CompleteJS
+	autocmd FileType php           setlocal omnifunc=phpcomplete#CompletePHP
+	autocmd FileType xml,xsd       setlocal omnifunc=xmlcomplete#CompleteTags
 	autocmd FileType sql           setlocal omnifunc=sqlcomplete#Complete
 augroup END
-function! Autocomplete()
-	let prefix = pumvisible() ? "\<C-e>" : ""
-
-	" Insert tab if at the front of the line.
-	if strpart(getline('.'), 0, col('.')-1) =~ '^\s*$'
-		return  prefix . "\<Tab>"
-
-	" If omni matches exist, select first match; else try keyword completion.
-	elseif &omnifunc != ''
-		return "\<C-x>\<C-o>\<C-r>=pumvisible() ?" .
-		\      "\"\\<Down>\" :" .
-		\      "\"\\<C-e>\\<C-n>\"" .
-		\      "\<CR>"
-
-	" Try keyword completion.
-	else
-		return prefix . "\<C-n>"
-	endif
-endfunction
-inoremap <expr> <silent> <Tab> Autocomplete()
-inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 
 " Toggle Commands
 function! ToggleMargin()
@@ -252,14 +276,15 @@ nnoremap <Leader>th :set hlsearch!<CR>
 nnoremap <Leader>tl :set list!<CR>
 nnoremap <Leader>tm :call ToggleMargin()<CR>
 nnoremap <Leader>ts :set spell!<CR>:set spell?<CR>
-nnoremap <Leader>tt :TagbarToggle<CR>
+nnoremap <Leader>tb :TagbarToggle<CR>
 nnoremap <expr> <C-m> ToggleWinMinMax()
 
 " Miscellaneous
 augroup Misc
 	autocmd!
 	autocmd VimEnter * set vb t_vb= " Removes bells
-	autocmd VimEnter * hi SpellBad cterm = underline
+	autocmd VimEnter * hi clear SpellBad
+	autocmd VimEnter * hi SpellBad ctermfg=red cterm=underline,bold gui=underline
 augroup END
 function! Strip() " Removes trailing whitespaces
 	:%s/\s\+$//e
@@ -291,7 +316,7 @@ function! Multiple_cursors_before()
 	endif
 endfunction
 function! Multiple_cursors_after()
-	if exists(':NeoCompleteUnlock')==2
+	if exists(':NeoCompleteUnlock') == 2
 		exe 'NeoCompleteUnlock'
 	endif
 endfunction
@@ -310,7 +335,15 @@ augroup NERDTree
 	autocmd!
 	autocmd FileType nerdtree setlocal relativenumber
 augroup END
-nnoremap <Leader>e :execute 'e %:p:h'<CR>
+
+" netrw
+let g:netrw_banner = 0
+let netrw_liststyle = 0
+augroup netrw
+	autocmd!
+	autocmd FileType netrw let netrw_bufsettings += 'number'
+	autocmd FileType netrw nnoremap <buffer> <nowait> <silent> q :bd!<CR>
+augroup END
 
 " OmniCppComplete
 let OmniCpp_SelectFirstItem = 2
@@ -341,3 +374,6 @@ let g:UltiSnipsExpandTrigger = '<C-a>'
 let g:UltiSnipsJumpForwardTrigger = '<C-f>'
 let g:UltiSnipsJumpBackwardTrigger = '<C-b>'
 let g:UltiSnipsListSnippets = '<C-l>'
+
+" Tsuquyomi Typescript
+let g:tsuquyomi_completion_detail = 0
