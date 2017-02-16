@@ -1,0 +1,98 @@
+# Foreground Colors
+set black "\[\033[0;30m\]"
+set red "\[\033[0;31m\]"
+set green "\[\033[0;32m\]"
+set brown "\[\033[0;33m\]"
+set blue "\[\033[0;34m\]"
+set purple "\[\033[0;35m\]"
+set cyan "\[\033[0;36m\]"
+set lightgray "\[\033[0;37m\]"
+set darkgray "\[\033[1;30m\]"
+set lightred "\[\033[1;31m\]"
+set lightgreen "\[\033[1;32m\]"
+set yellow "\[\033[1;33m\]"
+set lightblue "\[\033[1;34m\]"
+set pink "\[\033[1;35m\]"
+set lightcyan "\[\033[1;36m\]"
+set white "\[\033[1;37m\]"
+
+# Background Colors
+set bg_red "\[\033[0;41m\]"
+set bg_green "\[\033[0;42m\]"
+set bg_brown "\[\033[0;43m\]"
+set bg_blue "\[\033[0;44m\]"
+set bg_purple "\[\033[0;45m\]"
+set bg_cyan "\[\033[0;46m\]"
+set bg_gray "\[\033[0;47m\]"
+
+# Styles
+set normal "\[\033[0m\]"
+set bold "\[\033[2m\]"
+set italics "\[\033[3m\]"
+set underline "\[\033[4m\]"
+set blink "\[\033[5m\]"
+set outline "\[\033[6m\]"
+set inverse "\[\033[7m\]"
+set invisible "\[\033[8m\]"
+set strike "\[\033[9m\]"
+set no_bold "\[\033[22m\]"
+set no_italics "\[\033[23m\]"
+set no_underline "\[\033[24m\]"
+set no_blink "\[\033[25m\]"
+set no_inverse "\[\033[27m\]"
+set no_strike "\[\033[29m\]"
+
+# Names
+set cwd "$CWD"
+set cwdtail "$CWD:t"
+set host "`hostname -s`"
+set user "`whoami`"
+set histcount "%h"
+
+# Prompt
+set prompt "${lightred}${user}@${host}>${normal} "
+
+# Cleanup
+unset black
+unset red
+unset green
+unset brown
+unset blue
+unset purple
+unset cyan
+unset lightgray
+unset darkgray
+unset lightred
+unset lightgreen
+unset yellow
+unset lightblue
+unset pink
+unset lightcyan
+unset white
+unset bg_red
+unset bg_green
+unset bg_brown
+unset bg_blue
+unset bg_purple
+unset bg_cyan
+unset bg_gray
+unset normal
+unset bold
+unset italics
+unset underline
+unset blink
+unset outline
+unset inverse
+unset invisible
+unset strike
+unset no_bold
+unset no_italics
+unset no_underline
+unset no_blink
+unset no_inverse
+unset no_strike
+unset cwdfull
+unset cwdtail
+unset host
+unset user
+unset histcount
