@@ -1,14 +1,14 @@
 " Platform-Dependent Settings
-let $VIMHOME = has('win32') ? $HOME . '\\vimfiles' : $HOME . '/.vim'
+let $VIMHOME = has('win32') ? $HOME . '\vimfiles' : $HOME . '/.vim'
+let $MAKECMD = has('win32') ? 'mingw32-make.exe' : 'make'
 
 " Paths
-set runtimepath+=$VIMHOME
-set runtimepath+=$VIMHOME/plugins/vim-plug
+set runtimepath+=$VIMHOME/vim-plug
 
 " Plugins
-call plug#begin('~/.vim/plugins/')
+call plug#begin($VIMHOME . '/vim-plug/plugins')
 Plug 'Quramy/tsuquyomi'
-Plug 'Shougo/vimproc.vim', {'do' : 'make'}
+Plug 'Shougo/vimproc.vim', {'do' : $MAKECMD}
 Plug 'davidhalter/jedi-vim'
 Plug 'dhruvasagar/vim-table-mode'
 Plug 'jnurmine/Zenburn'
@@ -47,7 +47,7 @@ set relativenumber
 set autoread
 set clipboard=unnamed,unnamedplus
 set complete=.
-set completeopt=menu,menuone,longest,preview
+set completeopt=menu,menuone,longest
 set encoding=utf-8
 set incsearch
 set listchars=trail:·,precedes:«,extends:»,eol:↲,tab:▸\ "
@@ -63,7 +63,7 @@ set spell
 set splitbelow
 set splitright
 set wildchar=<Tab>
-set wildmode=longest,list
+set wildmode=list:longest
 set t_Co=256
 set t_RV=
 set t_ut=
@@ -203,6 +203,8 @@ augroup vimrc
 augroup END
 
 function! Autocomplete()
+	let expr = ""
+
 	" Insert a tab if at the front of the current line.
 	if strpart(getline("."), 0, col(".") - 1) =~ "^\s*$"
 		let expr .= "\<Tab>"
@@ -241,7 +243,7 @@ inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 inoremap <C-Space> <Tab>
 inoremap <Nul> <Tab>
 
-" Omnicomplete
+" Omni Complete
 augroup omnicomplete
 	autocmd!
 	autocmd FileType c,cpp         setlocal omnifunc=omni#cpp#complete#Main

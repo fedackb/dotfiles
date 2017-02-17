@@ -122,8 +122,10 @@ alias git-graph='git log --graph --all --decorate --oneline'
 # set colors
 TERM='xterm-256color'
 
-# simple prompt
-PS1='% '
+# prompt
+if [ -f ~/.bashrc.prompt ]; then
+    . ~/.bashrc.prompt
+fi
 
 # add cwd to path
 export PATH=.:$PATH
