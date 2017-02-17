@@ -206,7 +206,7 @@ function! Autocomplete()
 	let expr = ""
 
 	" Insert a tab if at the front of the current line.
-	if strpart(getline("."), 0, col(".") - 1) =~ "^\s*$"
+	if strpart(getline("."), 0, col(".") - 1) =~ "^[ \t]*$"
 		let expr .= "\<Tab>"
 
 	" Otherwise, invoke a completion method.
