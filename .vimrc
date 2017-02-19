@@ -9,10 +9,12 @@ set runtimepath+=$VIMHOME/vim-plug
 call plug#begin($VIMHOME . '/vim-plug/plugins')
 Plug 'Quramy/tsuquyomi'
 Plug 'Shougo/vimproc.vim', {'do' : $MAKECMD}
+Plug 'beloglazov/vim-online-thesaurus'
 Plug 'davidhalter/jedi-vim'
 Plug 'dhruvasagar/vim-table-mode'
 Plug 'jnurmine/Zenburn'
 Plug 'joshdick/onedark.vim'
+Plug 'junegunn/goyo.vim'
 Plug 'junegunn/vim-easy-align'
 Plug 'kien/ctrlp.vim'
 Plug 'leafgarland/typescript-vim'
@@ -29,6 +31,7 @@ colorscheme onedark
 " General Options
 filetype indent on
 let g:mapleader = ','
+let g:maplocalleader = g:mapleader
 set autoindent
 set smartindent
 set ignorecase
@@ -50,11 +53,12 @@ set complete=.
 set completeopt=menu,menuone,longest
 set encoding=utf-8
 set incsearch
-set listchars=trail:·,precedes:«,extends:»,eol:↲,tab:▸\ "
+set listchars=trail:·,precedes:«,extends:»,eol:¶,tab:▸\ "
 set mouse=
 set nolist
 set nowrap
 set pumheight=10
+set title
 set ruler
 set scrolloff=0
 set selection=inclusive
@@ -79,12 +83,6 @@ nnoremap q <Nop>
 " Disable Ex mode.
 nnoremap Q <Nop>
 
-" Convenience Mappings
-inoremap jj <Esc>
-nnoremap <C-c> <Esc>
-inoremap <C-c> <Esc>
-vnoremap <C-c> <Esc>
-
 " Cursor Helpers
 nnoremap j gj
 nnoremap k gk
@@ -100,26 +98,6 @@ nnoremap <Leader>s :.,$s/\V\<<C-r><C-w>\>//gc<Left><Left><Left>
 nnoremap <Leader>S :.,$s/\V<C-r><C-a>//gc<Left><Left><Left>
 vnoremap <Leader>s y:.,$s/\V<C-r>0//gc<Left><Left><Left>
 
-" Surrounds
-noremap  <Leader>+ :s/\v^(\s*)(.*)$/\1'\2' \+/<CR>
-nnoremap <Leader>` ciW``<Esc>P
-nnoremap <Leader>" ciW""<Esc>P
-nnoremap <Leader>' ciW''<Esc>P
-nnoremap <Leader>{ ciW{}<Esc>P
-nnoremap <Leader>( ciW()<Esc>P
-nnoremap <Leader>< ciW<><Esc>P
-nnoremap <Leader>[ ciW[]<Esc>P
-vnoremap <Leader>` c``<Esc>P
-vnoremap <Leader>" c""<Esc>P
-vnoremap <Leader>' c''<Esc>P
-vnoremap <Leader>{ c{}<Esc>P
-vnoremap <Leader>( c()<Esc>P
-vnoremap <Leader>< c<><Esc>P
-vnoremap <Leader>[ c[]<Esc>P
-
-" Current Working Directory
-nnoremap <Leader>cd :lcd %:p:h<CR>:pwd<CR>
-
 " Cycle through Line Number Display Modes
 function! CycleNumberDisplay()
 	if !&number              " Display absolute line numbers.
@@ -132,10 +110,6 @@ function! CycleNumberDisplay()
 	endif
 endfunction
 nnoremap <Leader>t1 :call CycleNumberDisplay()<CR>
-
-" Yanks
-noremap <S-y> y$
-nnoremap <Leader>y ^yg_:<C-r>"<CR>
 
 " Folding
 function! FoldText()
@@ -203,23 +177,23 @@ augroup vimrc
 augroup END
 
 function! Autocomplete()
-	let expr = ""
+	let expr = ''
 
 	" Insert a tab if at the front of the current line.
-	if strpart(getline("."), 0, col(".") - 1) =~ "^[ \t]*$"
+	if strpart(getline('.'), 0, col('.') - 1) =~ '^[ \t]*$'
 		let expr .= "\<Tab>"
 
 	" Otherwise, invoke a completion method.
 	else
 		" Ensure that the popup menu is closed.
-		let expr = pumvisible() ? "\<C-e>" : ""
+		let expr = pumvisible() ? "\<C-e>" : ''
 
 		" Determine if omni completion matches exist.
 		let omniMatchesExist = 0
-		if exists("&omnifunc") && &omnifunc != ""
+		if exists('&omnifunc') && &omnifunc != ''
 			let F = function(&omnifunc)
-			let start = F(1, "")
-			let base = strpart(getline("."), start, col(".") - start - 1)
+			let start = F(1, '')
+			let base = strpart(getline('.'), start, col('.') - start - 1)
 			let omniMatchesExist = !empty(F(0, base))
 		endif
 
@@ -261,7 +235,7 @@ function! ToggleMargin()
 	if !&colorcolumn
 		let &colorcolumn = join(range(80,334), ',')
 	else
-		let &colorcolumn = ""
+		let &colorcolumn = ''
 	endif
 endfunction
 function! ToggleWinMinMax()

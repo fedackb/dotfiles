@@ -1,5 +1,5 @@
 " Font
-if has("win32")
+if has('win32')
 	set gfn=Consolas:h10:cANSI
 else
 	set gfn=Monospace\ 9
@@ -15,24 +15,27 @@ set guioptions-=R " Remove right scrollbar for vertically split windows
 set guioptions-=b " Remove bottom scrollbar
 set guioptions-=e " Remove GUI tabs
 
-" Toggle GUI Display
-function! ToggleGUI()
-	if &guioptions == ""
-		set guioptions=m
-	else
-		set guioptions=
-	endif
-endfunction!
-if has("win32")
+" Toggles GUI display
+if has('win32')
+	function! ToggleGUI()
+		if &guioptions == ''
+			set guioptions=m
+		else
+			set guioptions=
+		endif
+	endfunction!
 	nnoremap <Leader>tg :call ToggleGUI()<CR>
+endif
+
+" Toggles fullscreen
+if !has('win32')
+	function! ToggleFullscreen()
+		let cmd = 'wmctrl -ir ' . v:windowid . ' -b toggle,fullscreen'
+		:call system(cmd)
+		:redraw!
+	endfunction
+	map <silent> <expr> <F11> ToggleFullscreen()
 endif
 
 " Disable alt-key menu access.
 set wak=no
-
-" Use C-Space for command-line completion
-function! CommandLineCompletion()
-	call feedkeys("\<Nul>", "t")
-	return ""
-endfunction
-"cmap <expr> <C-space> CommandLineCompletion()
