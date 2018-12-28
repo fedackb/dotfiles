@@ -1,15 +1,15 @@
 " Font
 if has('win32')
-	set gfn=Consolas:h10:cANSI
+	set guifont=Consolas:h9:cANSI
 else
-	set gfn=Monospace\ 9
+	set guifont=Monospace\ 9
 endif
 
 " Remove GUI elements.
 set guioptions-=T " Remove toolbar
 set guioptions-=m " Remove menubar
 set guioptions-=l " Remove left scrollbar
-set guioptions-=L " Remove left scroll bar for vertically split windoww
+set guioptions-=L " Remove left scroll bar for vertically split windows
 set guioptions-=r " Remove right scrollbar
 set guioptions-=R " Remove right scrollbar for vertically split windows
 set guioptions-=b " Remove bottom scrollbar

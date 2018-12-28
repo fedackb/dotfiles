@@ -10,9 +10,10 @@ call plug#begin($VIMHOME . '/vim-plug/plugins')
 Plug 'Quramy/tsuquyomi'
 Plug 'Shougo/vimproc.vim', {'do' : $MAKECMD}
 Plug 'beloglazov/vim-online-thesaurus'
+Plug 'dansomething/vim-eclim'
 Plug 'davidhalter/jedi-vim'
 Plug 'dhruvasagar/vim-table-mode'
-Plug 'jnurmine/Zenburn'
+Plug 'drewtempelmeyer/palenight.vim'
 Plug 'joshdick/onedark.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/vim-easy-align'
@@ -25,23 +26,19 @@ Plug 'scrooloose/nerdtree'
 Plug 'terryma/vim-multiple-cursors'
 call plug#end()
 
-" Color Scheme
-colorscheme onedark
-
 " General Options
 filetype indent on
 let g:mapleader = ','
 let g:maplocalleader = g:mapleader
 set autoindent
-set smartindent
-set ignorecase
-set smartcase
+set nosmartindent
+set cindent
 set backspace=2
 set noexpandtab
-set shiftwidth=2
-set softtabstop=2
-set tabstop=2
-set cursorcolumn
+set shiftwidth=3
+set softtabstop=3
+set tabstop=3
+set nocursorcolumn
 set cursorline
 set foldlevelstart=99
 set foldmethod=syntax
@@ -54,20 +51,22 @@ set completeopt=menu,menuone,longest
 set encoding=utf-8
 set incsearch
 set listchars=trail:·,precedes:«,extends:»,eol:¶,tab:▸\ "
-set mouse=
+set mouse=a
 set nolist
 set nowrap
-set pumheight=10
+set pumheight=5
 set title
 set ruler
 set scrolloff=0
+set sidescroll=1
 set selection=inclusive
 set showcmd
 set spell
 set splitbelow
 set splitright
 set wildchar=<Tab>
-set wildmode=list:longest
+set wildcharm=<Tab>
+set wildmode=list:longest:full
 set t_Co=256
 set t_RV=
 set t_ut=
@@ -87,11 +86,15 @@ nnoremap Q <Nop>
 nnoremap j gj
 nnoremap k gk
 
+" Buffer Browser
+nnoremap <Leader>b :buffers<CR>:buffer<Space>
+
 " File Browser
-nnoremap <Leader>e :e %:p:h<CR>
+nnoremap <Leader>e :e %:p:h/<Tab>
 
 " Search
-nnoremap / /\v
+nnoremap / /\v\c
+nnoremap ? ?\v\c
 
 " Search & Replace
 nnoremap <Leader>s :.,$s/\V\<<C-r><C-w>\>//gc<Left><Left><Left>
@@ -105,8 +108,8 @@ function! CycleNumberDisplay()
 	elseif !&relativenumber  " Display relative line numbers.
 		set relativenumber
 	else                     " Hide line numbers.
-		set number!
-		set relativenumber!
+		set nonumber
+		set norelativenumber
 	endif
 endfunction
 nnoremap <Leader>t1 :call CycleNumberDisplay()<CR>
@@ -125,56 +128,97 @@ nnoremap <silent> <Space> za
 set tags+=./tags;
 nnoremap <C-F12> :!ctags -R .<CR>
 
-" C/C++
-augroup C/C++
-	autocmd!
-	autocmd FileType c setlocal tags+=$VIMHOME/tags/c.tags
-	autocmd FileType cpp setlocal tags+=$VIMHOME/tags/cpp.tags
-augroup END
+if has('autocmd')
+	augroup OneDark
+		if exists("onedark#extend_highlight")
+			autocmd!
+			autocmd ColorScheme * call onedark#extend_highlight('StatusLine', {'bg': {'cterm': 234}})
+			autocmd ColorScheme * call onedark#extend_highlight('StatusLineNC', {'bg': {'cterm': 234}})
+			autocmd ColorScheme * call onedark#extend_highlight('TabLine', {'bg': {'cterm': 234}, 'fg': {'cterm': 59}})
+			autocmd ColorScheme * call onedark#extend_highlight('TabLineFill', {'bg': {'cterm': 234}})
+			autocmd ColorScheme * call onedark#extend_highlight('VertSplit', {'bg': {'cterm': 234}, 'fg': {'cterm': 234}})
+		endif
+	augroup END
 
-" HTML/XML
-augroup HTML/XML
-	autocmd!
-	autocmd FileType html,xml,xsd setlocal noexpandtab shiftwidth=2 softtabstop=2 tabstop=2
-augroup END
-vnoremap <Leader>he :s/\m\%V[<>]/\={'<':'&lt;','>':'&gt;'}[submatch(0)]/g<CR>
+	" C/C++
+	augroup C/C++
+		autocmd!
+		autocmd FileType c setlocal tags+=$VIMHOME/tags/c.tags
+		autocmd FileType cpp setlocal tags+=$VIMHOME/tags/cpp.tags
+	augroup END
 
-" Java
-augroup Java
-	autocmd!
-	autocmd FileType java setlocal tags+=$VIMHOME/tags/java.tags
-augroup END
+	" HTML/XML
+	augroup HTML/XML
+		autocmd!
+		autocmd FileType html,xml,xsd setlocal noexpandtab shiftwidth=2 softtabstop=2 tabstop=2
+	augroup END
+	vnoremap <Leader>he :s/\m\%V[<>]/\={'<':'&lt;','>':'&gt;'}[submatch(0)]/g<CR>
 
-" PHP
-augroup PHP
-	autocmd!
-	autocmd FileType php setlocal noexpandtab shiftwidth=4 softtabstop=4 tabstop=4
-augroup END
+	" Java
+	augroup Java
+		autocmd!
+		autocmd FileType java setlocal tags+=$VIMHOME/tags/java.tags
+	augroup END
 
-" Python
-augroup Python
-	autocmd!
-	autocmd FileType python setlocal expandtab shiftwidth=4 softtabstop=4 tabstop=4
-augroup END
+	" PHP
+	augroup PHP
+		autocmd!
+		autocmd FileType php setlocal noexpandtab shiftwidth=4 softtabstop=4 tabstop=4
+	augroup END
 
-" Text
-augroup text
-	autocmd!
-	autocmd FileType text setlocal wrap linebreak expandtab shiftwidth=2 softtabstop=2 tabstop=2
-augroup END
+	" Python
+	augroup Python
+		autocmd!
+		autocmd FileType python setlocal expandtab shiftwidth=4 softtabstop=4 tabstop=4
+														\        foldmethod=indent
+	augroup END
 
-" Typescript
-augroup typescript
-	autocmd!
-	autocmd FileType typescript nnoremap <buffer> <Leader>tt :<C-u>echo tsuquyomi#hint()<CR>
-augroup END
+	" Text
+	augroup Text
+		autocmd!
+		autocmd FileType text setlocal wrap linebreak expandtab shiftwidth=2 softtabstop=2 tabstop=2
+	augroup END
 
-" Vim Config
-augroup vimrc
-	autocmd!
-	autocmd FileType vim setlocal shiftwidth=2 softtabstop=2 tabstop=2
-	autocmd BufWritePost .vimrc,_vimrc,vimrc,.gvimrc,_gvimrc,gvimrc so $MYVIMRC | if has('gui_running') | so $MYGVIMRC | endif
-augroup END
+	" TypeScript
+	augroup TypeScript
+		autocmd!
+		autocmd FileType typescript nnoremap <buffer> <Leader>tt :<C-u>echo tsuquyomi#hint()<CR>
+	augroup END
+
+	" Vim Config
+	augroup vimrc
+		autocmd!
+		autocmd FileType vim setlocal noexpandtab shiftwidth=3 softtabstop=3 tabstop=3
+		autocmd BufWritePost .vimrc,_vimrc,vimrc,.gvimrc,_gvimrc,gvimrc source $MYVIMRC | if has('gui_running') | so $MYGVIMRC | endif
+	augroup END
+
+	" Omni Complete
+	augroup OmniComplete
+		autocmd!
+		autocmd FileType c,cpp         setlocal omnifunc=omni#cpp#complete#Main
+		autocmd FileType css           setlocal omnifunc=csscomplete#CompleteCSS
+		autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+		autocmd FileType java          setlocal omnifunc=syntaxcomplete#Complete
+		autocmd FileType javascript    setlocal omnifunc=javascriptcomplete#CompleteJS
+		autocmd FileType php           setlocal omnifunc=phpcomplete#CompletePHP
+		autocmd FileType xml,xsd       setlocal omnifunc=xmlcomplete#CompleteTags
+		autocmd FileType sql           setlocal omnifunc=sqlcomplete#Complete
+	augroup END
+
+	" Miscellaneous
+	augroup Misc
+		autocmd!
+		autocmd VimEnter * set vb t_vb= " Removes bells
+		autocmd VimEnter * hi clear SpellBad
+		autocmd VimEnter * hi SpellBad ctermfg=red cterm=underline,bold gui=underline
+	augroup END
+	function! Strip() " Removes trailing whitespaces
+		:%s/\s\+$//e
+	endfunction
+endif
+
+" Color Scheme
+colorscheme palenight
 
 function! Autocomplete()
 	let expr = ''
@@ -188,47 +232,49 @@ function! Autocomplete()
 		" Ensure that the popup menu is closed.
 		let expr = pumvisible() ? "\<C-e>" : ''
 
-		" Determine if omni completion matches exist.
-		let omniMatchesExist = 0
-		if exists('&omnifunc') && &omnifunc != ''
-			let F = function(&omnifunc)
-			let start = F(1, '')
+		" Determine if user completion matches exist.
+		let userMatchesExist = 0
+		if exists('&completefunc') && &completefunc != ''
+			let Fn = function(&completefunc)
+			let start = Fn(1, '')
 			let base = strpart(getline('.'), start, col('.') - start - 1)
-			let omniMatchesExist = !empty(F(0, base))
+			let userMatchesExist = !empty(Fn(0, base))
 		endif
 
-		" Invoke omni completion if at least one match exists.
-		if omniMatchesExist
-			let expr .= "\<C-x>\<C-o>\<C-r>=pumvisible() ? " .
+		" Invoke user completion if at least one match exists.
+		if userMatchesExist
+			let expr .= "\<C-x>\<C-u>\<C-r>=pumvisible() ? " .
 			\           "\"\\<Down>\" : \"\"" .
 			\           "\<CR>"
-
-		" Otherwise, invoke keyword completion.
 		else
-			let expr .= "\<C-n>\<C-r>=pumvisible() ? " .
-			\           "\"\\<Down>\" : \"\"" .
-			\           "\<CR>"
+			" Determine if omni completion matches exist.
+			let omniMatchesExist = 0
+			if exists('&omnifunc') && &omnifunc != ''
+				let Fn = function(&omnifunc)
+				let start = Fn(1, '')
+				let base = strpart(getline('.'), start, col('.') - start - 1)
+				let omniMatchesExist = !empty(Fn(0, base))
+			endif
+
+			" Invoke omni completion if at least one match exists.
+			if omniMatchesExist
+				let expr .= "\<C-x>\<C-o>\<C-r>=pumvisible() ? " .
+				\           "\"\\<Down>\" : \"\"" .
+				\           "\<CR>"
+			else
+				" Invoke keyword completion.
+				let expr .= "\<C-n>\<C-r>=pumvisible() ? " .
+				\           "\"\\<Down>\" : \"\"" .
+				\           "\<CR>"
+			endif
 		endif
 	endif
 	return expr
 endfunction
-inoremap <expr> <silent> <Tab> Autocomplete()
+inoremap <expr> <silent> <Tab> AutoComplete()
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 inoremap <C-Space> <Tab>
 inoremap <Nul> <Tab>
-
-" Omni Complete
-augroup omnicomplete
-	autocmd!
-	autocmd FileType c,cpp         setlocal omnifunc=omni#cpp#complete#Main
-	autocmd FileType css           setlocal omnifunc=csscomplete#CompleteCSS
-	autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-	autocmd FileType java          setlocal omnifunc=syntaxcomplete#Complete
-	autocmd FileType javascript    setlocal omnifunc=javascriptcomplete#CompleteJS
-	autocmd FileType php           setlocal omnifunc=phpcomplete#CompletePHP
-	autocmd FileType xml,xsd       setlocal omnifunc=xmlcomplete#CompleteTags
-	autocmd FileType sql           setlocal omnifunc=sqlcomplete#Complete
-augroup END
 
 " Toggle Commands
 function! ToggleMargin()
@@ -255,17 +301,6 @@ nnoremap <Leader>ts :set spell!<CR>:set spell?<CR>
 nnoremap <Leader>tb :TagbarToggle<CR>
 nnoremap <expr> <C-m> ToggleWinMinMax()
 
-" Miscellaneous
-augroup Misc
-	autocmd!
-	autocmd VimEnter * set vb t_vb= " Removes bells
-	autocmd VimEnter * hi clear SpellBad
-	autocmd VimEnter * hi SpellBad ctermfg=red cterm=underline,bold gui=underline
-augroup END
-function! Strip() " Removes trailing whitespaces
-	:%s/\s\+$//e
-endfunction
-
 " Ctrl-p
 let g:ctrlp_map = '<C-p>'
 let g:ctrlp_cache_dir = $VIMHOME . '/cache/ctrlp'
@@ -277,15 +312,15 @@ let g:ctrlp_custom_ignore = { 'dir':  '\v[\/]\.(git|cache|tmp|__init__)$', 'file
 " Easy Align
 vmap <Enter> <Plug>(EasyAlign)
 
-" Eclim
-let g:EclimCompletionMethod = 'omnifunc'
+" Jedi Vim
+let g:jedi#show_call_signatures = 0
 
 " Multiple Cursors
 let g:multi_cursor_use_default_mapping = 0
 let g:multi_cursor_next_key = '<C-n>'
 let g:multi_cursor_prev_key = '<C-p>'
 let g:multi_cursor_skip_key = '<C-x>'
-let g:multi_cursor_quit_key = '<C-c>'
+let g:multi_cursor_quit_key = '<C-[>'
 function! Multiple_cursors_before()
 	if exists(':NeoCompleteLock') == 2
 		exe 'NeoCompleteLock'
